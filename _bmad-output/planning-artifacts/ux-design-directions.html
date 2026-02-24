@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>meet-notes — UX Design Directions</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    font-family: -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #e8e8f0;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── Page Header ── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  .page-header p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.2px;
+  }
+
+  /* ── Direction Tabs ── */
+  .dir-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .dir-tab {
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.55);
+    transition: all 0.18s ease;
+    position: relative;
+    user-select: none;
+  }
+  .dir-tab:hover {
+    border-color: rgba(255,255,255,0.28);
+    color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.08);
+  }
+  .dir-tab.active {
+    border-color: var(--tab-accent, #5B6CF6);
+    color: #fff;
+    background: rgba(91,108,246,0.15);
+    box-shadow: 0 0 0 1px rgba(91,108,246,0.25);
+  }
+  .dir-tab[data-dir="1"].active { --tab-accent: #5B6CF6; background: rgba(91,108,246,0.15); box-shadow: 0 0 0 1px rgba(91,108,246,0.25); }
+  .dir-tab[data-dir="2"].active { --tab-accent: #5B6CF6; background: rgba(91,108,246,0.12); box-shadow: 0 0 0 1px rgba(91,108,246,0.25); }
+  .dir-tab[data-dir="3"].active { --tab-accent: #9B6CF6; background: rgba(155,108,246,0.15); box-shadow: 0 0 0 1px rgba(155,108,246,0.25); }
+  .dir-tab[data-dir="4"].active { --tab-accent: #FFA040; background: rgba(255,160,64,0.12); box-shadow: 0 0 0 1px rgba(255,160,64,0.25); }
+
+  .dir-tab .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #5B6CF6;
+    color: #fff;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  /* ── Direction Description ── */
+  .dir-description {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    min-height: 20px;
+    transition: opacity 0.2s;
+  }
+  .dir-description span {
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+
+  /* ── Screen State Tabs ── */
+  .screen-tabs {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .screen-tab {
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 7px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.45);
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .screen-tab:hover {
+    color: rgba(255,255,255,0.75);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .screen-tab.active {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+    color: #fff;
+  }
+
+  /* ── Mockup Stage ── */
+  .mockup-stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  /* ── Window Shell ── */
+  .window {
+    width: 760px;
+    height: 520px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 24px 80px rgba(0,0,0,0.7),
+      0 8px 24px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: background 0.25s ease;
+  }
+
+  /* ── Direction color variables ── */
+  .window.d1 {
+    --win-bg: #13141F;
+    --sidebar-bg: rgba(255,255,255,0.04);
+    --sidebar-border: rgba(255,255,255,0.07);
+    --titlebar-bg: rgba(19,20,31,0.92);
+    --accent: #5B6CF6;
+    --accent-soft: rgba(91,108,246,0.18);
+    --accent-text: #5B6CF6;
+    --text-primary: rgba(255,255,255,0.92);
+    --text-secondary: rgba(255,255,255,0.45);
+    --text-tertiary: rgba(255,255,255,0.28);
+    --item-hover: rgba(255,255,255,0.05);
+    --item-active: rgba(91,108,246,0.18);
+    --item-active-border: rgba(91,108,246,0.4);
+    --divider: rgba(255,255,255,0.07);
+    --search-bg: rgba(255,255,255,0.07);
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.07);
+    --record-btn: #5B6CF6;
+    --record-gradient: linear-gradient(135deg, #5B6CF6 0%, #7B8CF6 100%);
+    --recording-bar: #FF4560;
+    --waveform: rgba(91,108,246,0.7);
+  }
+  .window.d2 {
+    --win-bg: #F5F5F7;
+    --sidebar-bg: rgba(255,255,255,0.6);
+    --sidebar-border: rgba(0,0,0,0.07);
+    --titlebar-bg: rgba(245,245,247,0.88);
+    --accent: #5B6CF6;
+    --accent-soft: rgba(91,108,246,0.1);
+    --accent-text: #4A5CE0;
+    --text-primary: rgba(0,0,0,0.88);
+    --text-secondary: rgba(0,0,0,0.45);
+    --text-tertiary: rgba(0,0,0,0.28);
+    --item-hover: rgba(0,0,0,0.04);
+    --item-active: rgba(91,108,246,0.1);
+    --item-active-border: rgba(91,108,246,0.3);
+    --divider: rgba(0,0,0,0.08);
+    --search-bg: rgba(0,0,0,0.06);
+    --card-bg: rgba(255,255,255,0.7);
+    --card-border: rgba(0,0,0,0.07);
+    --record-btn: #5B6CF6;
+    --record-gradient: linear-gradient(135deg, #5B6CF6 0%, #7B8CF6 100%);
+    --recording-bar: #FF4560;
+    --waveform: rgba(91,108,246,0.6);
+  }
+  .window.d3 {
+    --win-bg: #0D0E1A;
+    --sidebar-bg: rgba(255,255,255,0.035);
+    --sidebar-border: rgba(255,255,255,0.06);
+    --titlebar-bg: rgba(13,14,26,0.95);
+    --accent: #9B6CF6;
+    --accent-soft: rgba(155,108,246,0.18);
+    --accent-text: #9B6CF6;
+    --text-primary: rgba(255,255,255,0.90);
+    --text-secondary: rgba(255,255,255,0.42);
+    --text-tertiary: rgba(255,255,255,0.25);
+    --item-hover: rgba(255,255,255,0.04);
+    --item-active: rgba(155,108,246,0.18);
+    --item-active-border: rgba(155,108,246,0.4);
+    --divider: rgba(255,255,255,0.06);
+    --search-bg: rgba(255,255,255,0.06);
+    --card-bg: rgba(255,255,255,0.035);
+    --card-border: rgba(255,255,255,0.06);
+    --record-btn: #9B6CF6;
+    --record-gradient: linear-gradient(135deg, #9B6CF6 0%, #C49CF8 100%);
+    --recording-bar: #FF4560;
+    --waveform: rgba(155,108,246,0.7);
+  }
+  .window.d4 {
+    --win-bg: #181412;
+    --sidebar-bg: rgba(255,255,255,0.04);
+    --sidebar-border: rgba(255,255,255,0.07);
+    --titlebar-bg: rgba(24,20,18,0.94);
+    --accent: #FFA040;
+    --accent-soft: rgba(255,160,64,0.15);
+    --accent-text: #FFA040;
+    --text-primary: rgba(255,255,255,0.92);
+    --text-secondary: rgba(255,255,255,0.45);
+    --text-tertiary: rgba(255,255,255,0.28);
+    --item-hover: rgba(255,255,255,0.05);
+    --item-active: rgba(255,160,64,0.15);
+    --item-active-border: rgba(255,160,64,0.4);
+    --divider: rgba(255,255,255,0.07);
+    --search-bg: rgba(255,255,255,0.07);
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.07);
+    --record-btn: #FFA040;
+    --record-gradient: linear-gradient(135deg, #FFA040 0%, #FF5020 100%);
+    --recording-bar: #FF5020;
+    --waveform: rgba(255,160,64,0.7);
+  }
+
+  .window {
+    background: var(--win-bg);
+  }
+
+  /* ── Title Bar ── */
+  .titlebar {
+    height: 40px;
+    background: var(--titlebar-bg);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    flex-shrink: 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: relative;
+  }
+  .traffic-lights {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .tl {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .tl-red    { background: #FF5F56; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2); }
+  .tl-yellow { background: #FFBD2E; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2); }
+  .tl-green  { background: #27C93F; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2); }
+
+  .titlebar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .titlebar-center .rec-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #FF4560;
+    animation: blink 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+  }
+  .titlebar-recording {
+    color: #FF4560 !important;
+    font-weight: 600;
+  }
+
+  /* ── Layout: sidebar + content ── */
+  .body-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease;
+    overflow: hidden;
+  }
+  .sidebar-collapsed {
+    width: 52px !important;
+  }
+
+  /* Sidebar header */
+  .sidebar-header {
+    padding: 14px 14px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-icon {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .app-name-group { flex: 1; min-width: 0; }
+  .app-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .ondevice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #27C93F;
+    background: rgba(39,201,63,0.12);
+    border: 1px solid rgba(39,201,63,0.25);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  .ondevice-badge .dot-green {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #27C93F;
+  }
+
+  /* Search */
+  .sidebar-search {
+    padding: 0 10px 8px;
+  }
+  .search-field {
+    width: 100%;
+    background: var(--search-bg);
+    border: 1px solid var(--divider);
+    border-radius: 7px;
+    padding: 6px 10px 6px 28px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-wrap {
+    position: relative;
+  }
+  .search-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    pointer-events: none;
+  }
+
+  /* Meeting list groups */
+  .sidebar-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px;
+  }
+  .list-group-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 8px 6px 4px;
+  }
+  .meeting-item {
+    border-radius: 7px;
+    padding: 8px 8px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+  .meeting-item:hover {
+    background: var(--item-hover);
+  }
+  .meeting-item.selected {
+    background: var(--item-active);
+    border-color: var(--item-active-border);
+  }
+  .meeting-title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.1px;
+  }
+  .meeting-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meeting-item.selected .meeting-title {
+    color: var(--accent-text);
+  }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 10px 10px 12px;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .new-meeting-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    background: var(--accent-soft);
+    border: 1px solid var(--item-active-border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-text);
+    cursor: pointer;
+    flex: 1;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  .settings-btn {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    background: var(--item-hover);
+    border: 1px solid var(--divider);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+
+  /* Collapsed sidebar */
+  .sidebar-collapsed .app-name-group,
+  .sidebar-collapsed .sidebar-search,
+  .sidebar-collapsed .sidebar-list,
+  .sidebar-collapsed .new-meeting-btn,
+  .sidebar-collapsed .ondevice-badge { display: none; }
+  .sidebar-collapsed .sidebar-header { justify-content: center; padding: 14px 0; }
+  .sidebar-collapsed .sidebar-footer { justify-content: center; flex-direction: column; gap: 6px; }
+  .sidebar-collapsed .settings-btn { margin: 0; }
+
+  /* Collapsed recording mini-waveform */
+  .collapsed-recording {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    flex: 1;
+  }
+  .sidebar-collapsed .collapsed-recording { display: flex; }
+
+  .mini-waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 28px;
+  }
+  .mw-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--recording-bar);
+    animation: mwPulse 0.9s ease-in-out infinite;
+  }
+  .mw-bar:nth-child(1) { animation-delay: 0s;    height: 8px; }
+  .mw-bar:nth-child(2) { animation-delay: 0.1s;  height: 14px; }
+  .mw-bar:nth-child(3) { animation-delay: 0.2s;  height: 20px; }
+  .mw-bar:nth-child(4) { animation-delay: 0.3s;  height: 16px; }
+  .mw-bar:nth-child(5) { animation-delay: 0.15s; height: 10px; }
+  @keyframes mwPulse {
+    0%, 100% { transform: scaleY(1); opacity: 0.6; }
+    50%       { transform: scaleY(1.8); opacity: 1; }
+  }
+  .stop-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #FF4560;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .stop-icon {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    background: #fff;
+  }
+  .rec-timer-mini {
+    font-size: 10px;
+    font-weight: 600;
+    color: #FF4560;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Content Area ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--win-bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Idle / Empty State ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--text-tertiary);
+  }
+  .empty-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: -0.2px;
+  }
+  .empty-sub {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
+  /* ── Recording State ── */
+  .recording-banner {
+    margin: 16px 16px 0;
+    background: rgba(255,69,96,0.1);
+    border: 1px solid rgba(255,69,96,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rec-banner-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #FF4560;
+    animation: blink 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .rec-banner-text {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #FF4560;
+  }
+  .rec-banner-sub {
+    font-size: 11px;
+    color: rgba(255,69,96,0.7);
+    margin-left: auto;
+  }
+
+  .waveform-container {
+    margin: 16px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .waveform-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .waveform-bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 48px;
+  }
+  .wv-bar {
+    flex: 1;
+    border-radius: 2px;
+    background: var(--waveform);
+    animation: wvPulse 1s ease-in-out infinite;
+    max-width: 6px;
+  }
+  .wv-bar:nth-child(1)  { animation-delay: 0.00s; --h: 18px; }
+  .wv-bar:nth-child(2)  { animation-delay: 0.07s; --h: 30px; }
+  .wv-bar:nth-child(3)  { animation-delay: 0.14s; --h: 42px; }
+  .wv-bar:nth-child(4)  { animation-delay: 0.21s; --h: 28px; }
+  .wv-bar:nth-child(5)  { animation-delay: 0.10s; --h: 36px; }
+  .wv-bar:nth-child(6)  { animation-delay: 0.18s; --h: 48px; }
+  .wv-bar:nth-child(7)  { animation-delay: 0.25s; --h: 22px; }
+  .wv-bar:nth-child(8)  { animation-delay: 0.05s; --h: 38px; }
+  .wv-bar:nth-child(9)  { animation-delay: 0.12s; --h: 32px; }
+  .wv-bar:nth-child(10) { animation-delay: 0.19s; --h: 44px; }
+  .wv-bar:nth-child(11) { animation-delay: 0.08s; --h: 26px; }
+  .wv-bar:nth-child(12) { animation-delay: 0.15s; --h: 40px; }
+  .wv-bar:nth-child(13) { animation-delay: 0.22s; --h: 20px; }
+  .wv-bar:nth-child(14) { animation-delay: 0.03s; --h: 34px; }
+  .wv-bar:nth-child(15) { animation-delay: 0.11s; --h: 46px; }
+  .wv-bar:nth-child(16) { animation-delay: 0.17s; --h: 24px; }
+  .wv-bar:nth-child(17) { animation-delay: 0.24s; --h: 38px; }
+  .wv-bar:nth-child(18) { animation-delay: 0.06s; --h: 30px; }
+  .wv-bar:nth-child(19) { animation-delay: 0.13s; --h: 42px; }
+  .wv-bar:nth-child(20) { animation-delay: 0.20s; --h: 16px; }
+  @keyframes wvPulse {
+    0%, 100% { height: calc(var(--h) * 0.4); opacity: 0.5; }
+    50%       { height: var(--h);             opacity: 1;   }
+  }
+
+  .live-transcript {
+    margin: 0 16px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .lt-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+  }
+  .lt-line {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .lt-speaker {
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+  .lt-line.dim {
+    color: var(--text-secondary);
+  }
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 13px;
+    background: var(--accent);
+    border-radius: 1px;
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: cursorBlink 0.9s ease-in-out infinite;
+  }
+  @keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  /* ── Post-Meeting State ── */
+  .post-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 18px 20px;
+  }
+
+  .meeting-header-block {
+    margin-bottom: 16px;
+  }
+  .meeting-title-large {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+    line-height: 1.3;
+  }
+  .meeting-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 5px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .meta-chip.green {
+    color: #27C93F;
+    background: rgba(39,201,63,0.1);
+    border-color: rgba(39,201,63,0.2);
+  }
+
+  .summary-section {
+    margin-bottom: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 13px 14px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.1px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title .emoji { font-size: 13px; }
+  .bullet-list { list-style: none; }
+  .bullet-list li {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.55;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 5px;
+  }
+  .bullet-list li::before {
+    content: "·";
+    position: absolute;
+    left: 3px;
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
+
+  /* Action cards */
+  .action-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .action-card {
+    background: var(--win-bg);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .action-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .action-assignee {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+  .action-due {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    background: var(--card-bg);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+  .action-task {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.45;
+  }
+
+  /* Transcript collapse */
+  .transcript-collapse {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .tc-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tc-arrow { font-size: 10px; color: var(--text-tertiary); }
+  .tc-meta { font-size: 11px; color: var(--text-tertiary); }
+
+  /* ── Screen / direction visibility ── */
+  .view { display: none; }
+  .view.active { display: flex; flex-direction: column; height: 100%; }
+
+  /* Light mode overrides for d2 */
+  .window.d2 .sidebar-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+  .window.d2 .content { background: #F5F5F7; }
+  .window.d2 .list-group-label { color: rgba(0,0,0,0.32); }
+  .window.d2 .meeting-title { color: rgba(0,0,0,0.85); }
+  .window.d2 .meeting-meta  { color: rgba(0,0,0,0.45); }
+  .window.d2 .app-name      { color: rgba(0,0,0,0.88); }
+  .window.d2 .meeting-title-large { color: rgba(0,0,0,0.88); }
+  .window.d2 .lt-line       { color: rgba(0,0,0,0.82); }
+  .window.d2 .action-task   { color: rgba(0,0,0,0.82); }
+  .window.d2 .bullet-list li { color: rgba(0,0,0,0.82); }
+  .window.d2 .section-title  { color: rgba(0,0,0,0.85); }
+  .window.d2 .action-card   { background: rgba(0,0,0,0.03); }
+  .window.d2 .empty-title   { color: rgba(0,0,0,0.5); }
+  .window.d2 .titlebar-center { color: rgba(0,0,0,0.8); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>meet-notes — UX Design Directions</h1>
+  <p>4 directions · 3 screen states each · Click tabs to explore</p>
+</div>
+
+<!-- Direction Tabs -->
+<div class="dir-tabs">
+  <div class="dir-tab active" data-dir="1" onclick="selectDir(1)">
+    Deep Night <span class="badge">Primary</span>
+  </div>
+  <div class="dir-tab" data-dir="2" onclick="selectDir(2)">Arctic Glass</div>
+  <div class="dir-tab" data-dir="3" onclick="selectDir(3)">Midnight Bloom</div>
+  <div class="dir-tab" data-dir="4" onclick="selectDir(4)">Warm Dusk</div>
+</div>
+
+<!-- Direction Description -->
+<div class="dir-description" id="dirDesc">
+  <span>Deep Night</span> — bg #13141F, sidebar frosted glass rgba(255,255,255,0.04), accent #5B6CF6 periwinkle. Balanced dark mode with cool-blue depth.
+</div>
+
+<!-- Screen State Tabs -->
+<div class="screen-tabs">
+  <div class="screen-tab active" data-state="idle"        onclick="selectState('idle')">Idle</div>
+  <div class="screen-tab"        data-state="recording"   onclick="selectState('recording')">Recording</div>
+  <div class="screen-tab"        data-state="post-meeting" onclick="selectState('post-meeting')">Post-Meeting</div>
+</div>
+
+<!-- Mockup Stage -->
+<div class="mockup-stage">
+
+  <!-- ╔═══════════════════════════════════╗ -->
+  <!-- ║  DIRECTION 1 — Deep Night         ║ -->
+  <!-- ╚═══════════════════════════════════╝ -->
+  <div class="window d1" id="win-d1">
+
+    <!-- D1 · IDLE -->
+    <div class="view active" id="d1-idle">
+      <!-- Title Bar -->
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <!-- Body -->
+      <div class="body-area">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <div class="search-field">Search meetings…</div>
+            </div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">Eng Stand-up</div>
+              <div class="meeting-meta">Mon · 15 min · 8 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">Product Roadmap Review</div>
+              <div class="meeting-meta">Tue · 60 min · 5 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <!-- Content: empty state -->
+        <div class="content">
+          <div class="empty-state">
+            <div class="empty-icon">🎙</div>
+            <div class="empty-title">Select a meeting</div>
+            <div class="empty-sub">Choose a recording from the sidebar to view notes and transcript</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /d1-idle -->
+
+    <!-- D1 · RECORDING -->
+    <div class="view" id="d1-recording">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center titlebar-recording">
+          <div class="rec-dot"></div>Recording · 12:34
+        </div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar sidebar-collapsed">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+          </div>
+          <div class="collapsed-recording">
+            <div class="mini-waveform">
+              <div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div>
+            </div>
+            <div class="rec-timer-mini">12:34</div>
+            <div class="stop-btn"><div class="stop-icon"></div></div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="recording-banner">
+            <div class="rec-banner-dot"></div>
+            <div class="rec-banner-text">Recording in progress</div>
+            <div class="rec-banner-sub">System audio + mic · Transcribing locally</div>
+          </div>
+          <div class="waveform-container">
+            <div class="waveform-label">Live Audio</div>
+            <div class="waveform-bars">
+              <div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div>
+              <div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div>
+              <div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div>
+              <div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div>
+            </div>
+          </div>
+          <div class="live-transcript">
+            <div class="lt-label">Live Transcript</div>
+            <div class="lt-line dim"><span class="lt-speaker">Ana:</span> — and we shipped the new onboarding flow last Thursday. Retention is up eight points week over week.</div>
+            <div class="lt-line"><span class="lt-speaker">Marco:</span> That's great. Do we have a breakdown by cohort yet?</div>
+            <div class="lt-line"><span class="lt-speaker">Ana:</span> Still processing, but preliminary numbers look promising<span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /d1-recording -->
+
+    <!-- D1 · POST-MEETING -->
+    <div class="view" id="d1-post-meeting">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <div class="search-field">Search meetings…</div>
+            </div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="post-content">
+            <div class="meeting-header-block">
+              <div class="meeting-title-large">Sprint Review — Wave 3</div>
+              <div class="meeting-header-meta">
+                <div class="meta-chip">Today</div>
+                <div class="meta-chip">47 min</div>
+                <div class="meta-chip">6 participants</div>
+                <div class="meta-chip green">🔒 Processed locally</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">✅</span> Decisions</div>
+              <ul class="bullet-list">
+                <li>Ship Wave 3 to production on Friday after final QA sign-off</li>
+                <li>Postpone feature flags migration to next sprint — too much scope</li>
+                <li>Ana to own the retention deep-dive, share async by EOW</li>
+              </ul>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">⚡</span> Action Items</div>
+              <div class="action-cards">
+                <div class="action-card">
+                  <div class="action-top"><span class="action-assignee">Marco</span><span class="action-due">Fri Feb 28</span></div>
+                  <div class="action-task">Run final QA pass on Wave 3 release branch and approve merge</div>
+                </div>
+                <div class="action-card">
+                  <div class="action-top"><span class="action-assignee">Ana</span><span class="action-due">Thu Feb 27</span></div>
+                  <div class="action-task">Produce cohort retention breakdown and share in #product Slack</div>
+                </div>
+                <div class="action-card">
+                  <div class="action-top"><span class="action-assignee">Priya</span><span class="action-due">Next Mon</span></div>
+                  <div class="action-task">Update roadmap doc to reflect Wave 4 scope change and re-prioritize backlog</div>
+                </div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">📌</span> Key Topics</div>
+              <ul class="bullet-list">
+                <li>Onboarding retention metrics — up 8 pts WoW after new flow launch</li>
+                <li>Feature flags migration complexity raised as sprint risk</li>
+                <li>Wave 4 scope: focus on performance, defer integrations to Q2</li>
+              </ul>
+            </div>
+            <div class="transcript-collapse">
+              <div class="tc-label"><span class="tc-arrow">▶</span> Full Transcript</div>
+              <div class="tc-meta">~2,400 words</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /d1-post-meeting -->
+
+  </div><!-- /window d1 -->
+
+
+  <!-- ╔═══════════════════════════════════╗ -->
+  <!-- ║  DIRECTION 2 — Arctic Glass       ║ -->
+  <!-- ╚═══════════════════════════════════╝ -->
+  <div class="window d2" id="win-d2" style="display:none;">
+
+    <!-- D2 · IDLE -->
+    <div class="view active" id="d2-idle">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <div class="search-field">Search meetings…</div>
+            </div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">Eng Stand-up</div>
+              <div class="meeting-meta">Mon · 15 min · 8 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="empty-state">
+            <div class="empty-icon">🎙</div>
+            <div class="empty-title">Select a meeting</div>
+            <div class="empty-sub">Choose a recording from the sidebar to view notes and transcript</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D2 · RECORDING -->
+    <div class="view" id="d2-recording">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center titlebar-recording"><div class="rec-dot"></div>Recording · 12:34</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar sidebar-collapsed">
+          <div class="sidebar-header"><div class="app-icon">🎙</div></div>
+          <div class="collapsed-recording">
+            <div class="mini-waveform"><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div></div>
+            <div class="rec-timer-mini">12:34</div>
+            <div class="stop-btn"><div class="stop-icon"></div></div>
+          </div>
+          <div class="sidebar-footer"><div class="settings-btn">⚙</div></div>
+        </div>
+        <div class="content">
+          <div class="recording-banner">
+            <div class="rec-banner-dot"></div>
+            <div class="rec-banner-text">Recording in progress</div>
+            <div class="rec-banner-sub">System audio + mic · Transcribing locally</div>
+          </div>
+          <div class="waveform-container">
+            <div class="waveform-label">Live Audio</div>
+            <div class="waveform-bars"><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div></div>
+          </div>
+          <div class="live-transcript">
+            <div class="lt-label">Live Transcript</div>
+            <div class="lt-line dim"><span class="lt-speaker">Ana:</span> — and we shipped the new onboarding flow last Thursday. Retention is up eight points week over week.</div>
+            <div class="lt-line"><span class="lt-speaker">Marco:</span> That's great. Do we have a breakdown by cohort yet?</div>
+            <div class="lt-line"><span class="lt-speaker">Ana:</span> Still processing, but preliminary numbers look promising<span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D2 · POST-MEETING -->
+    <div class="view" id="d2-post-meeting">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap"><span class="search-icon">⌕</span><div class="search-field">Search meetings…</div></div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="post-content">
+            <div class="meeting-header-block">
+              <div class="meeting-title-large">Sprint Review — Wave 3</div>
+              <div class="meeting-header-meta">
+                <div class="meta-chip">Today</div><div class="meta-chip">47 min</div><div class="meta-chip">6 participants</div><div class="meta-chip green">🔒 Processed locally</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">✅</span> Decisions</div>
+              <ul class="bullet-list"><li>Ship Wave 3 to production on Friday after final QA sign-off</li><li>Postpone feature flags migration to next sprint — too much scope</li><li>Ana to own the retention deep-dive, share async by EOW</li></ul>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">⚡</span> Action Items</div>
+              <div class="action-cards">
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Marco</span><span class="action-due">Fri Feb 28</span></div><div class="action-task">Run final QA pass on Wave 3 release branch and approve merge</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Ana</span><span class="action-due">Thu Feb 27</span></div><div class="action-task">Produce cohort retention breakdown and share in #product Slack</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Priya</span><span class="action-due">Next Mon</span></div><div class="action-task">Update roadmap doc to reflect Wave 4 scope change and re-prioritize backlog</div></div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">📌</span> Key Topics</div>
+              <ul class="bullet-list"><li>Onboarding retention metrics — up 8 pts WoW after new flow launch</li><li>Feature flags migration complexity raised as sprint risk</li><li>Wave 4 scope: focus on performance, defer integrations to Q2</li></ul>
+            </div>
+            <div class="transcript-collapse">
+              <div class="tc-label"><span class="tc-arrow">▶</span> Full Transcript</div>
+              <div class="tc-meta">~2,400 words</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /window d2 -->
+
+
+  <!-- ╔═══════════════════════════════════╗ -->
+  <!-- ║  DIRECTION 3 — Midnight Bloom     ║ -->
+  <!-- ╚═══════════════════════════════════╝ -->
+  <div class="window d3" id="win-d3" style="display:none;">
+
+    <!-- D3 · IDLE -->
+    <div class="view active" id="d3-idle">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap"><span class="search-icon">⌕</span><div class="search-field">Search meetings…</div></div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">Eng Stand-up</div>
+              <div class="meeting-meta">Mon · 15 min · 8 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="empty-state">
+            <div class="empty-icon">🎙</div>
+            <div class="empty-title">Select a meeting</div>
+            <div class="empty-sub">Choose a recording from the sidebar to view notes and transcript</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 · RECORDING -->
+    <div class="view" id="d3-recording">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center titlebar-recording"><div class="rec-dot"></div>Recording · 12:34</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar sidebar-collapsed">
+          <div class="sidebar-header"><div class="app-icon">🎙</div></div>
+          <div class="collapsed-recording">
+            <div class="mini-waveform"><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div></div>
+            <div class="rec-timer-mini">12:34</div>
+            <div class="stop-btn"><div class="stop-icon"></div></div>
+          </div>
+          <div class="sidebar-footer"><div class="settings-btn">⚙</div></div>
+        </div>
+        <div class="content">
+          <div class="recording-banner">
+            <div class="rec-banner-dot"></div>
+            <div class="rec-banner-text">Recording in progress</div>
+            <div class="rec-banner-sub">System audio + mic · Transcribing locally</div>
+          </div>
+          <div class="waveform-container">
+            <div class="waveform-label">Live Audio</div>
+            <div class="waveform-bars"><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div></div>
+          </div>
+          <div class="live-transcript">
+            <div class="lt-label">Live Transcript</div>
+            <div class="lt-line dim"><span class="lt-speaker">Ana:</span> — and we shipped the new onboarding flow last Thursday. Retention is up eight points week over week.</div>
+            <div class="lt-line"><span class="lt-speaker">Marco:</span> That's great. Do we have a breakdown by cohort yet?</div>
+            <div class="lt-line"><span class="lt-speaker">Ana:</span> Still processing, but preliminary numbers look promising<span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 · POST-MEETING -->
+    <div class="view" id="d3-post-meeting">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap"><span class="search-icon">⌕</span><div class="search-field">Search meetings…</div></div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="post-content">
+            <div class="meeting-header-block">
+              <div class="meeting-title-large">Sprint Review — Wave 3</div>
+              <div class="meeting-header-meta">
+                <div class="meta-chip">Today</div><div class="meta-chip">47 min</div><div class="meta-chip">6 participants</div><div class="meta-chip green">🔒 Processed locally</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">✅</span> Decisions</div>
+              <ul class="bullet-list"><li>Ship Wave 3 to production on Friday after final QA sign-off</li><li>Postpone feature flags migration to next sprint — too much scope</li><li>Ana to own the retention deep-dive, share async by EOW</li></ul>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">⚡</span> Action Items</div>
+              <div class="action-cards">
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Marco</span><span class="action-due">Fri Feb 28</span></div><div class="action-task">Run final QA pass on Wave 3 release branch and approve merge</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Ana</span><span class="action-due">Thu Feb 27</span></div><div class="action-task">Produce cohort retention breakdown and share in #product Slack</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Priya</span><span class="action-due">Next Mon</span></div><div class="action-task">Update roadmap doc to reflect Wave 4 scope change and re-prioritize backlog</div></div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">📌</span> Key Topics</div>
+              <ul class="bullet-list"><li>Onboarding retention metrics — up 8 pts WoW after new flow launch</li><li>Feature flags migration complexity raised as sprint risk</li><li>Wave 4 scope: focus on performance, defer integrations to Q2</li></ul>
+            </div>
+            <div class="transcript-collapse">
+              <div class="tc-label"><span class="tc-arrow">▶</span> Full Transcript</div>
+              <div class="tc-meta">~2,400 words</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /window d3 -->
+
+
+  <!-- ╔═══════════════════════════════════╗ -->
+  <!-- ║  DIRECTION 4 — Warm Dusk          ║ -->
+  <!-- ╚═══════════════════════════════════╝ -->
+  <div class="window d4" id="win-d4" style="display:none;">
+
+    <!-- D4 · IDLE -->
+    <div class="view active" id="d4-idle">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon" style="background: var(--record-gradient);">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap"><span class="search-icon">⌕</span><div class="search-field">Search meetings…</div></div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">Eng Stand-up</div>
+              <div class="meeting-meta">Mon · 15 min · 8 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="empty-state">
+            <div class="empty-icon">🎙</div>
+            <div class="empty-title">Select a meeting</div>
+            <div class="empty-sub">Choose a recording from the sidebar to view notes and transcript</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D4 · RECORDING -->
+    <div class="view" id="d4-recording">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center titlebar-recording"><div class="rec-dot"></div>Recording · 12:34</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar sidebar-collapsed">
+          <div class="sidebar-header"><div class="app-icon" style="background: var(--record-gradient);">🎙</div></div>
+          <div class="collapsed-recording">
+            <div class="mini-waveform"><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div><div class="mw-bar"></div></div>
+            <div class="rec-timer-mini">12:34</div>
+            <div class="stop-btn"><div class="stop-icon"></div></div>
+          </div>
+          <div class="sidebar-footer"><div class="settings-btn">⚙</div></div>
+        </div>
+        <div class="content">
+          <div class="recording-banner">
+            <div class="rec-banner-dot"></div>
+            <div class="rec-banner-text">Recording in progress</div>
+            <div class="rec-banner-sub">System audio + mic · Transcribing locally</div>
+          </div>
+          <div class="waveform-container">
+            <div class="waveform-label">Live Audio</div>
+            <div class="waveform-bars"><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div><div class="wv-bar"></div></div>
+          </div>
+          <div class="live-transcript">
+            <div class="lt-label">Live Transcript</div>
+            <div class="lt-line dim"><span class="lt-speaker">Ana:</span> — and we shipped the new onboarding flow last Thursday. Retention is up eight points week over week.</div>
+            <div class="lt-line"><span class="lt-speaker">Marco:</span> That's great. Do we have a breakdown by cohort yet?</div>
+            <div class="lt-line"><span class="lt-speaker">Ana:</span> Still processing, but preliminary numbers look promising<span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D4 · POST-MEETING -->
+    <div class="view" id="d4-post-meeting">
+      <div class="titlebar">
+        <div class="traffic-lights"><div class="tl tl-red"></div><div class="tl tl-yellow"></div><div class="tl tl-green"></div></div>
+        <div class="titlebar-center">meet-notes</div>
+      </div>
+      <div class="body-area">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div class="app-icon" style="background: var(--record-gradient);">🎙</div>
+            <div class="app-name-group">
+              <div class="app-name">meet-notes</div>
+              <div class="ondevice-badge"><div class="dot-green"></div> On-device</div>
+            </div>
+          </div>
+          <div class="sidebar-search">
+            <div class="search-wrap"><span class="search-icon">⌕</span><div class="search-field">Search meetings…</div></div>
+          </div>
+          <div class="sidebar-list">
+            <div class="list-group-label">Today</div>
+            <div class="meeting-item selected">
+              <div class="meeting-title">Sprint Review — Wave 3</div>
+              <div class="meeting-meta">2:00 PM · 47 min · 6 people</div>
+            </div>
+            <div class="meeting-item">
+              <div class="meeting-title">1:1 with Ana</div>
+              <div class="meeting-meta">10:30 AM · 28 min</div>
+            </div>
+            <div class="list-group-label">This Week</div>
+            <div class="meeting-item">
+              <div class="meeting-title">Design Sync</div>
+              <div class="meeting-meta">Mon · 45 min · 4 people</div>
+            </div>
+          </div>
+          <div class="sidebar-footer">
+            <div class="new-meeting-btn">⏺ New Meeting</div>
+            <div class="settings-btn">⚙</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="post-content">
+            <div class="meeting-header-block">
+              <div class="meeting-title-large">Sprint Review — Wave 3</div>
+              <div class="meeting-header-meta">
+                <div class="meta-chip">Today</div><div class="meta-chip">47 min</div><div class="meta-chip">6 participants</div><div class="meta-chip green">🔒 Processed locally</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">✅</span> Decisions</div>
+              <ul class="bullet-list"><li>Ship Wave 3 to production on Friday after final QA sign-off</li><li>Postpone feature flags migration to next sprint — too much scope</li><li>Ana to own the retention deep-dive, share async by EOW</li></ul>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">⚡</span> Action Items</div>
+              <div class="action-cards">
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Marco</span><span class="action-due">Fri Feb 28</span></div><div class="action-task">Run final QA pass on Wave 3 release branch and approve merge</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Ana</span><span class="action-due">Thu Feb 27</span></div><div class="action-task">Produce cohort retention breakdown and share in #product Slack</div></div>
+                <div class="action-card"><div class="action-top"><span class="action-assignee">Priya</span><span class="action-due">Next Mon</span></div><div class="action-task">Update roadmap doc to reflect Wave 4 scope change and re-prioritize backlog</div></div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="section-title"><span class="emoji">📌</span> Key Topics</div>
+              <ul class="bullet-list"><li>Onboarding retention metrics — up 8 pts WoW after new flow launch</li><li>Feature flags migration complexity raised as sprint risk</li><li>Wave 4 scope: focus on performance, defer integrations to Q2</li></ul>
+            </div>
+            <div class="transcript-collapse">
+              <div class="tc-label"><span class="tc-arrow">▶</span> Full Transcript</div>
+              <div class="tc-meta">~2,400 words</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /window d4 -->
+
+</div><!-- /mockup-stage -->
+
+<script>
+  var currentDir   = 1;
+  var currentState = 'idle';
+
+  var dirDescriptions = {
+    1: '<span>Deep Night</span> — bg #13141F, sidebar frosted glass rgba(255,255,255,0.04), accent #5B6CF6 periwinkle. Balanced dark mode with cool-blue depth.',
+    2: '<span>Arctic Glass</span> — bg white / #F5F5F7, sidebar heavy glass rgba(255,255,255,0.6), accent #5B6CF6. Light mode with strong glass depth and airy feel.',
+    3: '<span>Midnight Bloom</span> — bg #0D0E1A deeper dark, accent #9B6CF6 purple. More dramatic depth, violet tones evoke a creative focus state.',
+    4: '<span>Warm Dusk</span> — bg #181412 warm dark, accent #FFA040 amber, record button orange-red gradient. Earthy warmth contrasts cool productivity defaults.'
+  };
+
+  function selectDir(d) {
+    // Hide all windows
+    for (var i = 1; i <= 4; i++) {
+      document.getElementById('win-d' + i).style.display = 'none';
+    }
+    // Show selected
+    document.getElementById('win-d' + d).style.display = 'flex';
+    document.getElementById('win-d' + d).style.flexDirection = 'column';
+
+    // Update direction tab highlights
+    document.querySelectorAll('.dir-tab').forEach(function(tab) {
+      tab.classList.remove('active');
+    });
+    document.querySelector('.dir-tab[data-dir="' + d + '"]').classList.add('active');
+
+    // Update description
+    document.getElementById('dirDesc').innerHTML = dirDescriptions[d];
+
+    currentDir = d;
+
+    // Reapply current screen state to the newly shown window
+    applyState(currentState);
+  }
+
+  function selectState(state) {
+    currentState = state;
+
+    // Update screen tab highlights
+    document.querySelectorAll('.screen-tab').forEach(function(tab) {
+      tab.classList.remove('active');
+    });
+    document.querySelector('.screen-tab[data-state="' + state + '"]').classList.add('active');
+
+    applyState(state);
+  }
+
+  function applyState(state) {
+    // For the active window only, show the correct view
+    var win = document.getElementById('win-d' + currentDir);
+    if (!win) return;
+
+    var views = win.querySelectorAll('.view');
+    views.forEach(function(v) { v.classList.remove('active'); });
+
+    var target = document.getElementById('d' + currentDir + '-' + state);
+    if (target) { target.classList.add('active'); }
+  }
+
+  // Init
+  selectDir(1);
+  selectState('idle');
+</script>
+
+</body>
+</html>

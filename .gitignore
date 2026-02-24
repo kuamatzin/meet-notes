@@ -1,0 +1,38 @@
+# Xcode
+*.xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+xcuserdata/
+
+# Build
+build/
+*.o
+*.a
+*.dylib
+*.dSYM/
+.build/
+
+# Swift Package Manager
+.swiftpm/
+MeetNotes/Packages/
+
+# macOS
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Archives
+*.xcarchive
+
+# Environments
+.env
+.envrc
+
+# Secrets
+*.p12
+*.cer
+*.mobileprovision

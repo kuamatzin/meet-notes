@@ -1,0 +1,3 @@
+enum RecordingState {
+    case idle
+}
