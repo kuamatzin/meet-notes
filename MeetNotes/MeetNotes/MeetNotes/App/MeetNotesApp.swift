@@ -6,7 +6,7 @@ struct MeetNotesApp: App {
 
     @State private var recordingVM = RecordingViewModel()
     @State private var appErrorState = AppErrorState()
-    @State private var navigationState = NavigationState()
+    @State private var navigationState = NavigationState.shared
 
     var body: some Scene {
         MenuBarExtra("meet-notes", systemImage: "mic") {
