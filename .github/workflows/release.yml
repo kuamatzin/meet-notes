@@ -1,0 +1,178 @@
+# Release Workflow for MeetNotes
+# Triggers on every merge to main. Archives the app, signs with Developer ID,
+# notarizes with Apple, creates a DMG, uploads to GitHub Releases, and updates
+# the Sparkle appcast for auto-updates.
+#
+# Required GitHub Secrets:
+#   BUILD_CERTIFICATE_BASE64 - Developer ID Application certificate (.p12) as base64
+#   P12_PASSWORD             - Password for the .p12 file
+#   KEYCHAIN_PASSWORD        - Random password for the temporary CI keychain
+#   ASC_KEY_ID               - App Store Connect API key ID
+#   ASC_ISSUER_ID            - App Store Connect issuer UUID
+#   ASC_PRIVATE_KEY          - App Store Connect API private key (.p8 content)
+#   SPARKLE_PRIVATE_KEY      - Sparkle EdDSA private key (for signing updates)
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.3'
+
+      - name: Install Developer ID certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+      - name: Increment build number
+        run: |
+          cd MeetNotes/MeetNotes
+          xcrun agvtool new-version -all ${{ github.run_number }}
+
+      - name: Resolve SPM dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project MeetNotes/MeetNotes/MeetNotes.xcodeproj \
+            -scheme MeetNotes
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project MeetNotes/MeetNotes/MeetNotes.xcodeproj \
+            -scheme MeetNotes \
+            -archivePath "$RUNNER_TEMP/MeetNotes.xcarchive" \
+            SWIFT_STRICT_CONCURRENCY=complete
+
+      - name: Export
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/MeetNotes.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "MeetNotes" \
+            --hide-extension "MeetNotes.app" \
+            --app-drop-link 480 190 \
+            --icon "MeetNotes.app" 180 190 \
+            --no-internet-enable \
+            --sandbox-safe \
+            "$RUNNER_TEMP/MeetNotes-$(cd MeetNotes/MeetNotes && xcrun agvtool what-marketing-version -terse1).dmg" \
+            "$RUNNER_TEMP/export/" || DMG_EXIT=$?
+          DMG_EXIT=${DMG_EXIT:-0}
+          if [ "$DMG_EXIT" -ne 0 ] && [ "$DMG_EXIT" -ne 2 ]; then
+            echo "create-dmg failed with exit code $DMG_EXIT"
+            exit 1
+          fi
+          DMG_PATH=$(ls "$RUNNER_TEMP"/MeetNotes-*.dmg)
+          echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
+
+      - name: Notarize
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          ASC_KEY_PATH="$RUNNER_TEMP/AuthKey.p8"
+          echo -n "$ASC_PRIVATE_KEY" > "$ASC_KEY_PATH"
+          xcrun notarytool submit "$DMG_PATH" \
+            --key "$ASC_KEY_PATH" \
+            --key-id "$ASC_KEY_ID" \
+            --issuer "$ASC_ISSUER_ID" \
+            --wait --timeout 30m
+
+      - name: Staple
+        run: xcrun stapler staple "$DMG_PATH"
+
+      - name: Sign with Sparkle EdDSA
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          SPARKLE_KEY_PATH="$RUNNER_TEMP/sparkle_private_key"
+          echo -n "$SPARKLE_PRIVATE_KEY" > "$SPARKLE_KEY_PATH"
+          SIGN_UPDATE=$(find ~/Library/Developer/Xcode/DerivedData -name "sign_update" -type f 2>/dev/null | head -1)
+          if [ -z "$SIGN_UPDATE" ]; then
+            SIGN_UPDATE=$(find .build -name "sign_update" -type f 2>/dev/null | head -1)
+          fi
+          if [ -z "$SIGN_UPDATE" ]; then
+            echo "ERROR: Sparkle sign_update binary not found in DerivedData or .build"
+            exit 1
+          fi
+          SIGNATURE=$("$SIGN_UPDATE" "$DMG_PATH" --ed-key-file "$SPARKLE_KEY_PATH")
+          echo "SPARKLE_SIGNATURE=$SIGNATURE" >> "$GITHUB_ENV"
+
+      - name: Get version info
+        run: |
+          cd MeetNotes/MeetNotes
+          VERSION=$(xcrun agvtool what-marketing-version -terse1)
+          BUILD=$(xcrun agvtool what-version -terse)
+          DMG_SIZE=$(stat -f%z "$DMG_PATH")
+          {
+            echo "VERSION=$VERSION"
+            echo "BUILD=$BUILD"
+            echo "DMG_SIZE=$DMG_SIZE"
+          } >> "$GITHUB_ENV"
+
+      - name: Update appcast.xml
+        run: |
+          PUB_DATE=$(date -R)
+          DOWNLOAD_URL="https://github.com/kuamatzin/meet-notes/releases/download/v${VERSION}-build.${BUILD}/MeetNotes-${VERSION}.dmg"
+          ITEM="    <item>\n      <title>Version ${VERSION}</title>\n      <sparkle:version>${BUILD}</sparkle:version>\n      <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>\n      <sparkle:minimumSystemVersion>14.2</sparkle:minimumSystemVersion>\n      <pubDate>${PUB_DATE}</pubDate>\n      <enclosure\n        url=\"${DOWNLOAD_URL}\"\n        sparkle:edSignature=\"${SPARKLE_SIGNATURE}\"\n        length=\"${DMG_SIZE}\"\n        type=\"application/octet-stream\" />\n    </item>"
+          sed -i '' "s|<!-- Release items will be prepended here by the release workflow -->|${ITEM}\n    <!-- Release items will be prepended here by the release workflow -->|" appcast.xml
+
+      - name: Commit updated appcast.xml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git commit -m "Update appcast.xml for v${VERSION}-build.${BUILD}"
+          git push
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-build.${{ env.BUILD }}
+          name: MeetNotes v${{ env.VERSION }} (Build ${{ env.BUILD }})
+          files: ${{ env.DMG_PATH }}
+          generate_release_notes: true
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/app-signing.keychain-db" || true
+          rm -f "$RUNNER_TEMP/build_certificate.p12"
+          rm -f "$RUNNER_TEMP/AuthKey.p8"
+          rm -f "$RUNNER_TEMP/sparkle_private_key"
