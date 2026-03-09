@@ -64,6 +64,41 @@ MeetNotes/MeetNotes/
     └── Components/          # Color+DesignTokens, shared reusable views
 ```
 
+## CI/CD
+
+Every PR runs CI (build + test + SwiftLint). Every merge to `main` triggers a full release: archive, sign, notarize, DMG, GitHub Release, and Sparkle appcast update.
+
+**Branch Protection (Required):** Configure in GitHub **Settings > Branches > Branch protection rules** for `main`: require the "CI / build-and-test" status check to pass before merging.
+
+### Required GitHub Secrets
+
+Configure these in **Settings > Secrets and variables > Actions**:
+
+| Secret | Description |
+|---|---|
+| `BUILD_CERTIFICATE_BASE64` | Developer ID Application certificate (.p12) exported as base64 |
+| `P12_PASSWORD` | Password for the .p12 file |
+| `KEYCHAIN_PASSWORD` | Any random password for the temporary CI keychain |
+| `ASC_KEY_ID` | App Store Connect API key ID (for notarization) |
+| `ASC_ISSUER_ID` | App Store Connect issuer UUID (for notarization) |
+| `ASC_PRIVATE_KEY` | App Store Connect API private key (.p8 content) |
+| `SPARKLE_PRIVATE_KEY` | Sparkle EdDSA private key (for signing auto-updates) |
+
+### Sparkle Key Setup (One-Time)
+
+1. Build the project once so Sparkle's SPM tools are available
+2. Run `generate_keys` from Sparkle's build artifacts to create an EdDSA key pair
+3. Copy the **public key** into `MeetNotes/MeetNotes/MeetNotes/Info.plist` as `SUPublicEDKey`
+4. Export the **private key** and store it as the `SPARKLE_PRIVATE_KEY` GitHub secret
+
+### Encoding the Certificate
+
+```bash
+base64 -i DeveloperIDApplication.p12 | pbcopy
+```
+
+Paste the clipboard contents as the `BUILD_CERTIFICATE_BASE64` secret.
+
 ## Contributing
 
 See `_bmad-output/` for planning artifacts, epics, and implementation stories.

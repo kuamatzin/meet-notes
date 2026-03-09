@@ -41,40 +41,40 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   epic-1: in-progress
-  1-1-xcode-project-initialization-runnable-shell: in-progress
-  1-2-app-database-foundation-secrets-store: backlog
-  1-3-automated-build-distribution-pipeline: backlog
+  1-1-xcode-project-initialization-runnable-shell: done
+  1-2-app-database-foundation-secrets-store: done
+  1-3-automated-build-distribution-pipeline: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-permission-service-runtime-monitoring: backlog
-  2-2-first-launch-onboarding-wizard: backlog
-  2-3-missing-permission-recovery-guidance: backlog
+  epic-2: in-progress
+  2-1-permission-service-runtime-monitoring: done
+  2-2-first-launch-onboarding-wizard: done
+  2-3-missing-permission-recovery-guidance: done
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-menu-bar-recording-controls-state-machine: backlog
-  3-2-core-audio-capture-pipeline: backlog
-  3-3-audio-resilience-tap-loss-mic-fallback-sleep-wake: backlog
+  epic-3: done
+  3-1-menu-bar-recording-controls-state-machine: done
+  3-2-core-audio-capture-pipeline: done
+  3-3-audio-resilience-tap-loss-mic-fallback-sleep-wake: done
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-whisperkit-transcription-pipeline: backlog
-  4-2-model-management-transcription-settings: backlog
-  4-3-meeting-history-list: backlog
-  4-4-meeting-transcript-detail-view-navigation-routing: backlog
+  epic-4: in-progress
+  4-1-whisperkit-transcription-pipeline: done
+  4-2-model-management-transcription-settings: done
+  4-3-meeting-history-list: done
+  4-4-meeting-transcript-detail-view-navigation-routing: done
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-llm-settings-configuration: backlog
-  5-2-llm-provider-infrastructure-summary-generation: backlog
-  5-3-summary-view-streaming-display: backlog
-  5-4-post-meeting-rich-notification: backlog
+  epic-5: done
+  5-1-llm-settings-configuration: done
+  5-2-llm-provider-infrastructure-summary-generation: done
+  5-3-summary-view-streaming-display: done
+  5-4-post-meeting-rich-notification: done
   epic-5-retrospective: optional
 
-  epic-6: backlog
-  6-1-full-text-search-across-meetings: backlog
-  6-2-remaining-app-settings: backlog
-  6-3-error-handling-recovery-system: backlog
-  6-4-in-app-updates-final-accessibility-pass: backlog
+  epic-6: in-progress
+  6-1-full-text-search-across-meetings: done
+  6-2-remaining-app-settings: done
+  6-3-error-handling-recovery-system: done
+  6-4-in-app-updates-final-accessibility-pass: done
   epic-6-retrospective: optional

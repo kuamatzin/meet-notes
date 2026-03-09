@@ -29,7 +29,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Linting:** SwiftLint (realm/SwiftLint) — added as SPM build tool plugin
 - **Testing:** XCTest + Swift Testing (Apple 2024 framework)
 - **Build tool:** Xcode 16.3+ — SPM only; no CocoaPods or Carthage
-- **CI/CD:** GitHub Actions on `macos-14` runner
+- **CI/CD:** GitHub Actions on `macos-15` runner
 - **App Sandbox:** DISABLED (`com.apple.security.app-sandbox = false`)
 - **Hardened Runtime:** ENABLED (`ENABLE_HARDENED_RUNTIME = YES`) — required for notarization
 - **Distribution:** Notarized DMG, outside App Store
@@ -57,9 +57,13 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 - **`@Observable` only, zero legacy patterns.** Never import or use `Combine` for ViewModel state. Never use `@StateObject` / `@ObservedObject` in views.
 
-- **Real-time thread boundary — absolute rule.** The Core Audio tap callback runs on a real-time OS thread. The ONLY permitted operation inside it is `continuation.yield(buffer)`. No `await`, no actor calls, no database access, no `os_log`, no `NotificationCenter.default.post`.
+- **Real-time thread boundary — absolute rule.** The Core Audio tap callback runs on a real-time OS thread. The ONLY permitted operations inside it are: `continuation.yield(buffer)`, `mach_absolute_time()` reads, and minimal `os_unfair_lock` critical sections (single-assignment only) for tap health monitoring timestamps. No `await`, no actor calls, no database access, no `os_log`, no `Date()`, no `NotificationCenter.default.post`, no memory allocation.
   ```swift
-  // ONLY this is allowed inside a tap callback:
+  // Allowed inside a tap callback:
+  let now = mach_absolute_time()
+  os_unfair_lock_lock(lockPtr)
+  timePtr.pointee = now
+  os_unfair_lock_unlock(lockPtr)
   continuation.yield(buffer)
   ```
 
@@ -167,7 +171,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   }
   ```
 
-- **Database tests use in-memory `AppDatabase`.** Tests that exercise GRDB logic instantiate `AppDatabase` with an in-memory SQLite store (`:memory:`), never a file path.
+- **Database tests use temporary file-backed `AppDatabase`.** Tests that exercise GRDB logic instantiate `AppDatabase` with a UUID-named temp file (GRDB `DatabasePool` requires WAL mode which needs a real file). Clean up temp files in `defer` blocks.
 
 - **`AppDatabase` migrations run in tests.** Always run the full `DatabaseMigrator` on the in-memory database before testing — never insert raw SQL in tests that bypasses the migration schema.
 
@@ -247,7 +251,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Unguarded `withAnimation` / `.animation()` | Violates NFR-A4 accessibility requirement |
 | Co-located test files next to source | Tests live in `MeetNotesTests/` mirroring source folder structure |
 | Reusable view with ViewModel dependency in `UI/Components/` | Components folder is dependency-free subviews only |
-| Any async call, I/O, or logging inside a Core Audio tap callback | Real-time thread violation; will cause audio glitches or crashes |
+| Any async call, I/O, or logging inside a Core Audio tap callback (except `mach_absolute_time` + `os_unfair_lock` for timestamp) | Real-time thread violation; will cause audio glitches or crashes |
 | Storing API keys in UserDefaults, SQLite, plist, or log output | Security violation (NFR-S1); use `SecretsStore` + Keychain exclusively |
 | Instantiating `CloudAPIProvider` without a user-configured API key | Violates NFR-S2 zero-exfiltration-by-default; cloud path is structurally opt-in |
 | Modifying an already-registered GRDB migration | Breaks idempotent migration invariant; creates schema divergence on existing installs |

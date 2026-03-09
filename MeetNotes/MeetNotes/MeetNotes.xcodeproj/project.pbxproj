@@ -23,39 +23,31 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EDAB1C832F4E1C3B00E62C1C /* MeetNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED00AA012F4F000000CC0001 /* MeetNotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetNotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDAB1C832F4E1C3B00E62C1C /* MeetNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		ED5566022F50000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			buildToolPlugins = (
-				ED5566012F50000000000001 /* SwiftLintBuildToolPlugin */,
-			);
-			membershipExceptions = (
-			);
-			target = EDAB1C822F4E1C3B00E62C1C /* MeetNotes */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EDAB1C852F4E1C3B00E62C1C /* MeetNotes */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				ED5566022F50000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
-			);
-			path = MeetNotes;
-			sourceTree = "<group>";
-		};
 		ED00AA022F4F000000CC0002 /* MeetNotesTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = MeetNotesTests;
 			sourceTree = "<group>";
 		};
+		EDAB1C852F4E1C3B00E62C1C /* MeetNotes */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MeetNotes;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		ED00AA042F4F000000CC0004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EDAB1C802F4E1C3B00E62C1C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -63,13 +55,6 @@
 				EDB5B70C2F4E21D300BB4D1B /* Sparkle in Frameworks */,
 				EDB5B7012F4E200700BB4D1B /* WhisperKit in Frameworks */,
 				EDB5B7042F4E20DD00BB4D1B /* GRDB in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED00AA042F4F000000CC0004 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,32 +82,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EDAB1C822F4E1C3B00E62C1C /* MeetNotes */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EDAB1C8E2F4E1C3D00E62C1C /* Build configuration list for PBXNativeTarget "MeetNotes" */;
-			buildPhases = (
-				EDAB1C7F2F4E1C3B00E62C1C /* Sources */,
-				EDAB1C802F4E1C3B00E62C1C /* Frameworks */,
-				EDAB1C812F4E1C3B00E62C1C /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				EDAB1C852F4E1C3B00E62C1C /* MeetNotes */,
-			);
-			name = MeetNotes;
-			packageProductDependencies = (
-				EDB5B7002F4E200700BB4D1B /* WhisperKit */,
-				EDB5B7032F4E20DD00BB4D1B /* GRDB */,
-				EDB5B70B2F4E21D300BB4D1B /* Sparkle */,
-				ED5566012F50000000000001 /* SwiftLintBuildToolPlugin */,
-			);
-			productName = MeetNotes;
-			productReference = EDAB1C832F4E1C3B00E62C1C /* MeetNotes.app */;
-			productType = "com.apple.product-type.application";
-		};
 		ED00AA082F4F000000CC0008 /* MeetNotesTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = ED00AA0B2F4F000000CC000B /* Build configuration list for PBXNativeTarget "MeetNotesTests" */;
@@ -144,6 +103,31 @@
 			productReference = ED00AA012F4F000000CC0001 /* MeetNotesTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		EDAB1C822F4E1C3B00E62C1C /* MeetNotes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDAB1C8E2F4E1C3D00E62C1C /* Build configuration list for PBXNativeTarget "MeetNotes" */;
+			buildPhases = (
+				EDAB1C7F2F4E1C3B00E62C1C /* Sources */,
+				EDAB1C802F4E1C3B00E62C1C /* Frameworks */,
+				EDAB1C812F4E1C3B00E62C1C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				EDAB1C852F4E1C3B00E62C1C /* MeetNotes */,
+			);
+			name = MeetNotes;
+			packageProductDependencies = (
+				EDB5B7002F4E200700BB4D1B /* WhisperKit */,
+				EDB5B7032F4E20DD00BB4D1B /* GRDB */,
+				EDB5B70B2F4E21D300BB4D1B /* Sparkle */,
+			);
+			productName = MeetNotes;
+			productReference = EDAB1C832F4E1C3B00E62C1C /* MeetNotes.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -154,12 +138,12 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
-					EDAB1C822F4E1C3B00E62C1C = {
-						CreatedOnToolsVersion = 26.2;
-					};
 					ED00AA082F4F000000CC0008 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = EDAB1C822F4E1C3B00E62C1C;
+					};
+					EDAB1C822F4E1C3B00E62C1C = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -191,14 +175,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		EDAB1C812F4E1C3B00E62C1C /* Resources */ = {
+		ED00AA052F4F000000CC0005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ED00AA052F4F000000CC0005 /* Resources */ = {
+		EDAB1C812F4E1C3B00E62C1C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -208,14 +192,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		EDAB1C7F2F4E1C3B00E62C1C /* Sources */ = {
+		ED00AA032F4F000000CC0003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ED00AA032F4F000000CC0003 /* Sources */ = {
+		EDAB1C7F2F4E1C3B00E62C1C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -233,6 +217,46 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		ED00AA092F4F000000CC0009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MeetNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MeetNotes";
+			};
+			name = Debug;
+		};
+		ED00AA0A2F4F000000CC000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MeetNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MeetNotes";
+			};
+			name = Release;
+		};
 		EDAB1C8C2F4E1C3D00E62C1C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -366,6 +390,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MeetNotes/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -373,7 +398,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -384,6 +409,7 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -402,6 +428,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MeetNotes/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -409,7 +436,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -420,52 +447,22 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
-			};
-			name = Release;
-		};
-		ED00AA092F4F000000CC0009 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotesTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MeetNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MeetNotes";
-			};
-			name = Debug;
-		};
-		ED00AA0A2F4F000000CC000A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bumeran.dev.MeetNotesTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MeetNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MeetNotes";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		ED00AA0B2F4F000000CC000B /* Build configuration list for PBXNativeTarget "MeetNotesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED00AA092F4F000000CC0009 /* Debug */,
+				ED00AA0A2F4F000000CC000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		EDAB1C7E2F4E1C3B00E62C1C /* Build configuration list for PBXProject "MeetNotes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -484,18 +481,17 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		ED00AA0B2F4F000000CC000B /* Build configuration list for PBXNativeTarget "MeetNotesTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				ED00AA092F4F000000CC0009 /* Debug */,
-				ED00AA0A2F4F000000CC000A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		ED0011012F4E300000BB0001 /* XCRemoteSwiftPackageReference "OllamaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kevinhermawan/OllamaKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		ED2153AF2F4E26ED00CB69A0 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/SwiftLint";
@@ -528,14 +524,6 @@
 				minimumVersion = 2.9.0;
 			};
 		};
-		ED0011012F4E300000BB0001 /* XCRemoteSwiftPackageReference "OllamaKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kevinhermawan/OllamaKit";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -553,11 +541,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EDB5B70A2F4E21D300BB4D1B /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
-		};
-		ED5566012F50000000000001 /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ED2153AF2F4E26ED00CB69A0 /* XCRemoteSwiftPackageReference "SwiftLint" */;
-			productName = SwiftLintBuildToolPlugin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
